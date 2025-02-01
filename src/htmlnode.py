@@ -32,14 +32,54 @@ class LeafNode(HTMLNode):
     
     def to_html(self):
         if self.value == None:
-            raise ValueError("Invalid HTML: no value")
+            raise ValueError("Invalid HTML: no value provided")
         if self.tag == None:
             return f"{self.value}"
-        # else:
-        #     opening_tag = self.tag
-        #     if self.props != None:
-        #         opening_tag += self.props_to_html()
-        #     opening_tag = f"<{opening_tag}>"
-        #     closing_tag = f"</{self.tag}>"
-        #     return opening_tag + self.value + closing_tag
         return f"<{self.tag}{self.props_to_html()}>{self.value}</{self.tag}>"
+    
+class ParentNode(HTMLNode):
+    def __init__(self, tag, children, props=None):
+        super().__init__(tag, None, children, props)
+
+    def to_html(self):
+        if not self.tag:
+            raise ValueError("Invalid HTML: no tag provided")
+        if not self.children:
+            raise ValueError("Invalid HTML: no children provided")
+        children_html = ""
+        for child in self.children:
+            children_html += child.to_html()
+        return f"<{self.tag}{self.props_to_html()}>{children_html}</{self.tag}>"
+
+    def __repr__(self):
+        return f"ParentNode({self.tag}, children: {self.children}, {self.props})"
+
+
+    # def to_html(self):
+    #     if self.tag == None:
+    #         raise ValueError("Invalid HTML: no tag provided")
+    #     if self.children == None or len(self.children) == 0:
+    #         raise ValueError("Invalid HTML: no children provided")
+        
+    #     # Handle Props
+    #     if self.props:
+    #         attributes = " ".join(f'{key}="{value}"' for key, value in self.props.items())
+    #         opening_tag = f"<{self.tag} {attributes}>"
+    #     else:
+    #         opening_tag = f"<{self.tag}>"
+        
+    #     def recursive_to_html(children, result=""):
+    #         # base case
+    #         if not children:
+    #             return result
+            
+    #         # recursive case
+    #         current_child = children[0]
+    #         result += current_child.to_html()
+    #         return recursive_to_html(children[1:], result)
+
+    #     children_html = recursive_to_html(self.children)
+    #     return f"{opening_tag}{children_html}</{self.tag}>"
+
+            
+        
