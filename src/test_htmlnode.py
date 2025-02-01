@@ -1,5 +1,6 @@
 import unittest
-from htmlnode import HTMLNode, LeafNode, ParentNode
+from htmlnode import HTMLNode, LeafNode, ParentNode, text_node_to_html_node
+from textnode import TextNode, TextType
 
 
 class TestHTMLNode(unittest.TestCase):
@@ -234,6 +235,54 @@ class TestParentNode(unittest.TestCase):
             ParentNode(None,[LeafNode(None, "Content")]).to_html()
 
         self.assertEqual(str(context.exception), "Invalid HTML: no tag provided")
+
+class TestTextNodeToHTMLNode(unittest.TestCase):
+    def test_text_type_text(self):
+        text_node = TextNode("This is text", TextType.TEXT)
+        node = text_node_to_html_node(text_node)
+        self.assertEqual(node.value, "This is text")
+        self.assertEqual(node.tag, None)
+
+    def test_text_type_bold(self):
+        text_node = TextNode("This is bold", TextType.BOLD)
+        node = text_node_to_html_node(text_node)
+        self.assertEqual(node.value, "This is bold")
+        self.assertEqual(node.tag, "b")
+        
+    def test_text_type_italic(self):
+        text_node = TextNode("This is italic", TextType.ITALIC)
+        node = text_node_to_html_node(text_node)
+        self.assertEqual(node.value, "This is italic")
+        self.assertEqual(node.tag, "i")
+
+    def test_text_type_code(self):
+        text_node = TextNode("This is code", TextType.CODE)
+        node = text_node_to_html_node(text_node)
+        self.assertEqual(node.value, "This is code")
+        self.assertEqual(node.tag, "code")
+
+    def test_text_type_link(self):
+        text_node = TextNode("This is link", TextType.LINK, "http://www.google.com")
+        node = text_node_to_html_node(text_node)
+        self.assertEqual(node.value, "This is link")
+        self.assertEqual(node.tag, "a")
+        self.assertIn("href", node.props)
+        self.assertIn("http://www.google.com", node.props["href"])
+
+    def test_text_type_image(self):
+        text_node = TextNode("This is image", TextType.IMAGE, "http://www.google.com")
+        node = text_node_to_html_node(text_node)
+        self.assertEqual(node.value, "")
+        self.assertEqual(node.tag, "img")
+        self.assertIn("src", node.props)
+        self.assertIn("http://www.google.com", node.props["src"])
+        self.assertIn("alt", node.props)
+        self.assertIn("This is image", node.props["alt"])
+
+    def test_invalid_text_type(self):
+        with self.assertRaises(ValueError):
+            text_node = TextNode("This should fail", "INVALID_TYPE")
+            text_node_to_html_node(text_node)
 
 if __name__ == "__main__":
     unittest.main()
