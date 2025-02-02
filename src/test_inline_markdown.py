@@ -197,3 +197,7 @@ class TestInlineMarkdown(unittest.TestCase):
             ],
             new_nodes
         )
+
+    def test_text_to_textnodes_empty_string(self):
+        nodes = text_to_textnodes("")
+        assert len(nodes) == 0
