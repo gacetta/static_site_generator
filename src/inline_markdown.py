@@ -1,3 +1,4 @@
+import re
 from textnode import TextNode, TextType
 
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
@@ -8,7 +9,6 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
             continue
         split_nodes = []
         sections = old_node.text.split(delimiter)
-        print(sections)
         if len(sections) % 2 == 0:
             raise ValueError("Invalid markdown, formatted section not closed")
         for i in range(len(sections)):
@@ -20,6 +20,23 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
                 split_nodes.append(TextNode(sections[i], text_type))
         new_nodes.extend(split_nodes)
     return new_nodes
+
+def extract_markdown_images(text):
+    # text = "This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
+    # print(extract_markdown_images(text))
+    # # [("rick roll", "https://i.imgur.com/aKaOqIh.gif"), ("obi wan", "https://i.imgur.com/fJRm4Vk.jpeg")]
+    image_regex = r"!\[([^\[\]]*)\]\(([^\(\)]*)\)"
+    images = re.findall(image_regex, text)
+    return images
+
+def extract_markdown_links(text):
+    # text = "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)"
+    # print(extract_markdown_links(text))
+    # # [("to boot dev", "https://www.boot.dev"), ("to youtube", "https://www.youtube.com/@bootdotdev")]
+    link_regex = r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)"
+    links = re.findall(link_regex, text)
+    return links
+
 
 # def split_nodes_delimiter(old_nodes, delimiter, text_type):
 #     new_nodes = []
