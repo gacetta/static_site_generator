@@ -41,80 +41,80 @@ def split_nodes_image(old_nodes):
     new_nodes = []
 
     for old_node in old_nodes:
-        inline_text = old_node.text
-        matching_images = extract_markdown_images(inline_text)
+        # only process TextNodes of TextType.TEXT
+        if old_node.text_type != TextType.TEXT:
+            new_nodes.append(old_node)
+            continue
+        
+        original_text = old_node.text
+        matching_images = extract_markdown_images(original_text)
 
         if not matching_images:
             new_nodes.append(old_node)
-
+            continue
+        
         for alt_text, url in matching_images:
             image_markdown = f"![{alt_text}]({url})"
-            sections = inline_text.split(image_markdown, 1)
+            sections = original_text.split(image_markdown, 1)
+            if len(sections) != 2:
+                raise ValueError("Invalid markdown, image section not closed")
             leading_text = sections[0]
 
             if leading_text:
                 new_nodes.append(TextNode(leading_text, TextType.TEXT))
                 
             new_nodes.append(TextNode(alt_text, TextType.IMAGE, url))
+
             if len(sections) > 1:
-                inline_text = sections[1]
-        
+                original_text = sections[1]
+        if original_text != "":
+            new_nodes.append(TextNode(original_text, TextType.TEXT))
     return new_nodes
 
 def split_nodes_link(old_nodes):
     new_nodes = []
 
     for old_node in old_nodes:
-        inline_text = old_node.text
-        matching_links = extract_markdown_links(inline_text)
+         # only process TextNodes of TextType.TEXT
+        if old_node.text_type != TextType.TEXT:
+            new_nodes.append(old_node)
+            continue
 
+        original_text = old_node.text
+        matching_links = extract_markdown_links(original_text)
         if not matching_links:
             new_nodes.append(old_node)
+            continue
 
         for alt_text, url in matching_links:
             link_markdown = f"[{alt_text}]({url})"
-            sections = inline_text.split(link_markdown, 1)
+            sections = original_text.split(link_markdown, 1)
+            if len(sections) != 2:
+                raise ValueError("Invalid markdown, link section not closed")
             leading_text = sections[0]
 
             if leading_text:
                 new_nodes.append(TextNode(leading_text, TextType.TEXT))
 
             new_nodes.append(TextNode(alt_text, TextType.LINK, url))
-            inline_text = sections[1]
+            if len(sections) > 1:
+                original_text = sections[1]
+        if original_text != "":
+            new_nodes.append(TextNode(original_text, TextType.TEXT))
         
     return new_nodes
 
-
-# def split_nodes_delimiter(old_nodes, delimiter, text_type):
-#     new_nodes = []
-#     for node in old_nodes:
-#         if node.text_type != TextType.TEXT:
-#             new_nodes.append(node)
-        # else:
-        #     text = node.text
-        #     delimiter_offset = len(delimiter)
-        #     # find positions of delimters
-        #     start = text.find(delimiter)
-        #     if start != -1:
-        #         second_instance = text[start+delimiter_offset:].find(delimiter)
-
-        #         if second_instance == -1:
-        #             raise Exception("Invalid Markdown Syntax")
-                
-        #         end = second_instance + start + delimiter_offset
-                
-        #         text_1 = text[:start]
-        #         text_2 = text[start+delimiter_offset:end]
-        #         text_3 = text[end+delimiter_offset:]
-
-        #         new_node_1 = TextNode(text_1, TextType.TEXT)
-        #         new_node_2 = TextNode(text_2, text_type)
-        #         new_node_3 = TextNode(text_3, TextType.TEXT)
-
-        #         new_nodes.append(new_node_1)
-        #         new_nodes.append(new_node_2)
-        #         new_nodes.append(new_node_3)
-
-        #     else:
-        #         new_nodes.append(node)
-    # return new_nodes
+def text_to_textnodes(text):
+    node = TextNode(text, TextType.TEXT)
+    # process text bold
+    node_list = split_nodes_delimiter([node], "**", TextType.BOLD)
+    # process text italic
+    node_list = split_nodes_delimiter(node_list, "*", TextType.ITALIC)
+    # process text code
+    node_list = split_nodes_delimiter(node_list, "`", TextType.CODE)
+    # process text image
+    node_list = split_nodes_image(node_list)
+    # process text link
+    node_list = split_nodes_link(node_list)
+    # print("nodes after image", node_list)
+    return node_list
