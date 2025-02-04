@@ -1,5 +1,5 @@
 import unittest
-from block_markdown import markdown_to_blocks
+from block_markdown import BlockType, markdown_to_blocks, block_to_block_type
 
 class TestMarkdownToHTML(unittest.TestCase):
     def test_markdown_to_blocks(self):
@@ -45,3 +45,47 @@ class TestMarkdownToHTML(unittest.TestCase):
             ],
             blocks
         )
+
+    def test_block_to_block_type_heading(self):
+        block = block_to_block_type("### heading")
+        self.assertEqual(block, "heading")
+
+    def test_block_to_block_type_incorrect_heading(self):
+        block = block_to_block_type("####### incorrect heading")
+        self.assertEqual(block, "paragraph")
+
+    def test_block_to_block_type_code(self):
+        block = block_to_block_type("```code```")
+        self.assertEqual(block, "code")
+
+    def test_block_to_block_type_incorrect_code(self):
+        block = block_to_block_type("```code``")
+        self.assertEqual(block, "paragraph")
+
+    def test_block_to_block_type_quote(self):
+        block = block_to_block_type(">quote line 1\n>quote line 2\n>quote line 3")
+        self.assertEqual(block, "quote")
+
+    def test_block_to_block_type_incorrect_quote(self):
+        block = block_to_block_type(">quote line 1\n>quote line 2\nquote line 3")
+        self.assertEqual(block, "paragraph")
+
+    def test_block_to_block_type_unordered_list(self):
+        block = block_to_block_type("* ul line 1\n- ul line 2\n* ul line 3")
+        self.assertEqual(block, "unordered_list")
+
+    def test_block_to_block_type_incorrect_unordered_list(self):
+        block = block_to_block_type("* ul line 1\n*ul line 2\n* ul line 3")
+        self.assertEqual(block, "paragraph")
+
+    def test_block_to_block_type_ordered_list(self):
+        block = block_to_block_type("1. ol line 1\n2. ol line 2\n3. ol line 3")
+        self.assertEqual(block, "ordered_list")
+
+    def test_block_to_block_type_incorrect_ordered_list(self):
+        block = block_to_block_type("1. ol line 1\n2. ol line 2\n4. ol line 3")
+        self.assertEqual(block, "paragraph")
+
+    def test_block_to_block_type_paragraph(self):
+        block = block_to_block_type("plain ol' paragraph text")
+        self.assertEqual(block, "paragraph")
