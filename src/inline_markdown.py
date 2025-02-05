@@ -1,5 +1,6 @@
 import re
 from textnode import TextNode, TextType
+from htmlnode import HTMLNode, ParentNode
 
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
     new_nodes = []
@@ -112,3 +113,26 @@ def text_to_textnodes(text):
     node_list = split_nodes_image(node_list)
     node_list = split_nodes_link(node_list)
     return node_list
+
+def text_to_htmlnodes(text):
+    text_nodes = text_to_textnodes(text)
+    html_nodes = []
+    for node in text_nodes:
+        if node.text_type == TextType.BOLD:
+            html_nodes.append(HTMLNode("strong", node.text))
+        elif node.text_type == TextType.ITALIC:
+            html_nodes.append(HTMLNode("em", node.text))
+        elif node.text_type == TextType.IMAGE:
+            props = {
+                "src": node.url,
+                "alt": node.text
+            }
+            html_nodes.append(HTMLNode("img", "", None, props))
+        elif node.text_type == TextType.LINK:
+            props = {
+                "href": node.url,
+            }
+            html_nodes.append(HTMLNode("a", node.text, None, props))
+        else:
+            html_nodes.append(HTMLNode(None, node.text))
+    return html_nodes

@@ -1,5 +1,9 @@
 import unittest
-from block_markdown import BlockType, markdown_to_blocks, block_to_block_type
+from block_markdown import (
+    markdown_to_blocks, 
+    block_to_block_type,
+    markdown_to_html_node
+)
 
 class TestMarkdownToHTML(unittest.TestCase):
     def test_markdown_to_blocks(self):
@@ -89,3 +93,49 @@ class TestMarkdownToHTML(unittest.TestCase):
     def test_block_to_block_type_paragraph(self):
         block = block_to_block_type("plain ol' paragraph text")
         self.assertEqual(block, "paragraph")
+
+    def test_markdown_to_html_node_code(self):
+        markdown = """
+        ```codeblock line 1
+        codeblock line 2
+        codeblock line 3``` 
+        """
+        result = markdown_to_html_node(markdown)
+
+        # check outer div
+        self.assertEqual("div", result.tag)
+
+        # check pre tag
+        pre_node = result.children[0]
+        self.assertEqual("pre", pre_node.tag)
+
+        # check code tag
+        code_node = pre_node.children[0]
+        self.assertEqual("code", code_node.tag)
+        self.assertEqual("codeblock line 1codeblock line 2codeblock line 3", code_node.value)
+
+    def xtest_markdown_to_html_node(self):
+        markdown = """### Header
+
+        paragraph
+
+        1. O-List Item 1
+        2. O-List Item 2
+
+        * U-List Item 1
+        * U-List Item 2
+
+        >quote1
+         >quote2
+
+        [link-text](www.link.com)
+
+        ![image-text](www.image.com)
+
+        This is **bold** and *italic*.
+
+        ```codeblock line 1
+        codeblock line 2
+        codeblock line 3``` 
+        """
+        print(markdown_to_html_node(markdown))
