@@ -1,6 +1,13 @@
 from htmlnode import HTMLNode, ParentNode
 from inline_markdown import text_to_textnodes, text_to_htmlnodes
 
+BLOCK_TYPE_PARAGRAPH = "paragraph"
+BLOCK_TYPE_HEADING = "heading"
+BLOCK_TYPE_CODE = "code"
+BLOCK_TYPE_QUOTE = "quote"
+BLOCK_TYPE_OLIST = "ordered_list"
+BLOCK_TYPE_ULIST = "unordered_list"
+
 def markdown_to_blocks(markdown):
     new_blocks = markdown.split("\n\n")
     cleaned_blocks = []
@@ -10,58 +17,58 @@ def markdown_to_blocks(markdown):
             cleaned_blocks.append(cleaned)
     return cleaned_blocks
 
-def block_to_block_type(markdown):
-    def is_heading(block):
+def block_to_block_type(markdown):    
+    if is_heading(markdown):
+        return BLOCK_TYPE_HEADING
+    elif is_code(markdown):
+        return BLOCK_TYPE_CODE
+    elif is_quote(markdown):
+        return BLOCK_TYPE_QUOTE
+    elif is_unordered_list(markdown):
+        return BLOCK_TYPE_ULIST
+    elif is_ordered_list(markdown):
+        return BLOCK_TYPE_OLIST
+    else:
+        return BLOCK_TYPE_PARAGRAPH
+    
+def is_heading(block):
         block = block.strip()
         if not block.startswith('#'):
             return False
         parts = block.split(' ', 1)
         return len(parts) == 2 and 1 <= len(parts[0]) <= 6
     
-    def is_code(block):
-        if not block.startswith('```'):
-            return False
-        return block.endswith('```')
-    
-    def is_quote(block):
-        lines = block.split("\n")
-        for line in lines:
-            line = line.strip()
-            if not line.startswith(">"):
-                return False
-        return True
+def is_code(block):
+    if not block.startswith('```'):
+        return False
+    return block.endswith('```')
 
-    def is_unordered_list(block):
-        lines = block.split("\n")
-        for line in lines:
-            line = line.strip()
-            if line.startswith("* ") or line.startswith("- "):
-                continue
+def is_quote(block):
+    lines = block.split("\n")
+    for line in lines:
+        line = line.strip()
+        if not line.startswith(">"):
             return False
-        return True
-    
-    def is_ordered_list(block):
-        i = 1
-        lines = block.split("\n")
-        for line in lines:
-            line = line.strip()
-            if not line.startswith(f"{i}. "):
-                return False
-            i += 1
-        return True
-    
-    if is_heading(markdown):
-        return "heading"
-    elif is_code(markdown):
-        return "code"
-    elif is_quote(markdown):
-        return "quote"
-    elif is_unordered_list(markdown):
-        return "unordered_list"
-    elif is_ordered_list(markdown):
-        return "ordered_list"
-    else:
-        return "paragraph"
+    return True
+
+def is_unordered_list(block):
+    lines = block.split("\n")
+    for line in lines:
+        line = line.strip()
+        if line.startswith("* ") or line.startswith("- "):
+            continue
+        return False
+    return True
+
+def is_ordered_list(block):
+    i = 1
+    lines = block.split("\n")
+    for line in lines:
+        line = line.strip()
+        if not line.startswith(f"{i}. "):
+            return False
+        i += 1
+    return True
 
 def markdown_to_html_node(markdown):
     new_nodes = []
