@@ -29,6 +29,7 @@ class TestTextNode(unittest.TestCase):
         node2 = TextNode("This is a text node", TextType.BOLD, "http://www.google.com")
         self.assertNotEqual(node, node2)
 
+
         
 
 

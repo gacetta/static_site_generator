@@ -1,5 +1,4 @@
-from htmlnode import HTMLNode, ParentNode, LeafNode
-from textnode import TextNode, TextType
+from htmlnode import HTMLNode, ParentNode
 from inline_markdown import text_to_textnodes, text_to_htmlnodes
 
 def markdown_to_blocks(markdown):
@@ -9,18 +8,7 @@ def markdown_to_blocks(markdown):
         cleaned = block.strip()
         if cleaned:
             cleaned_blocks.append(cleaned)
-    # cleaned_blocks = [block.strip() for block in new_blocks if block.strip()]
     return cleaned_blocks
-
-# def markdown_to_blocks(markdown):
-#     blocks = markdown.split("\n\n")
-#     filtered_blocks = []
-#     for block in blocks:
-#         if block == "":
-#             continue
-#         block = block.strip()
-#         filtered_blocks.append(block)
-#     return filtered_blocks
 
 def block_to_block_type(markdown):
     def is_heading(block):
@@ -42,7 +30,7 @@ def block_to_block_type(markdown):
             if not line.startswith(">"):
                 return False
         return True
-    
+
     def is_unordered_list(block):
         lines = block.split("\n")
         for line in lines:
@@ -74,7 +62,7 @@ def block_to_block_type(markdown):
         return "ordered_list"
     else:
         return "paragraph"
-    
+
 def markdown_to_html_node(markdown):
     new_nodes = []
     blocks = markdown_to_blocks(markdown)
