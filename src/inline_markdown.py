@@ -145,3 +145,10 @@ def extract_markdown_links(text):
     link_regex = r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)"
     links = re.findall(link_regex, text)
     return links
+
+def extract_title(text):
+    lines = text.split("\n")
+    for line in lines:
+        if line.strip().startswith("# "):
+            return line.lstrip("# ").strip()
+    raise ValueError("No h1 header found in text")

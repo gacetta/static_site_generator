@@ -124,5 +124,5 @@ class TestMarkdownToHTML(unittest.TestCase):
         """
 
         result = markdown_to_html_node(markdown)
-        print(result)
+        # print(result)
         self.assertEqual("div", result.tag)
